@@ -5,10 +5,10 @@ const { service } = Ember.inject;
 export default Ember.Controller.extend({
     session: service('session'),
     sessionAccount: service('session-account'),
-    selectedRaceIdentification: function() {
+    selectedRaceIdentification: Ember.computed(function() {
         var model = this.get('model');
         return model.get('demographicsRaceIdentification');
-    }.property(),
+    }),
     ageChoices: [
         'under 18',
         '18-21',
@@ -93,16 +93,18 @@ export default Ember.Controller.extend({
         'no'
     ],
     actions: {
-        selectRaceIdentification: function(event) {
-            const selectedRaceIdentification = Ember.$(event.target).val();
+        selectRaceIdentification: function() {
+            const selectedRaceIdentification = [];
+            Ember.$('#raceIdentification input:checked').each(function() {
+                selectedRaceIdentification.push(Ember.$(this).attr('value'));
+            });
             this.set('selectedRaceIdentification', selectedRaceIdentification || []);
         },
         saveDemographicsPreferences: function() {
             var model = this.get('model');
             model.setProperties({
                 demographicsLanguagesSpokenAtHome: model.get('demographicsLanguagesSpokenAtHome'),
-                demographicsNumberOfChildren: model.get('numberOfChildren'),
-                demographicsChildrenBirthDates: model.get('demographicsChildrenBirthDates'),
+                demographicsNumberOfChildren: model.get('demographicsNumberOfChildren'),
                 demographicsNumberOfGuardians: model.get('demographicsNumberOfGuardians'),
                 demographicsNumberOfGuardiansExplanation: model.get('demographicsNumberOfGuardiansExplanation'),
                 demographicsRaceIdentification: this.get('selectedRaceIdentification'),
@@ -113,9 +115,12 @@ export default Ember.Controller.extend({
                 demographicsAnnualIncome: model.get('demographicsAnnualIncome'),
                 demographicsWillingToBeContactedForSimilarStudies: model.get('demographicsWillingToBeContactedForSimilarStudies'),
                 demographicsCanScheduleAnAppointment: model.get('demographicsCanScheduleAnAppointment'),
+                demographicsNumberOfBooks: model.get('demographicsNumberOfBooks'),
                 demographicsAdditionalComments: model.get('demographicsAdditionalComments')
             });
-            model.save();
+            model.save().then(() => {
+                this.toast.info('Demographic survey saved successfully.');
+            });
         }
     }
 });
