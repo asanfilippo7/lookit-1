@@ -10,9 +10,9 @@ export default Ember.Controller.extend({
     }),
     actions: {
         logout() {
-            this.get('session').invalidate().then(() => {
+            this.get('session').invalidate(); /*.then(() => {
                 this.transitionToRoute('home');
-            });
+            }); */
         }
     }
 });
